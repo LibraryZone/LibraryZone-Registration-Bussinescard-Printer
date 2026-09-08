@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Library Zone — QR Card Creator</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+:root{
+  --blue:#2d6cdf;
+  --navy:#1b2a49;
+  --navy2:#243b63;
+  --bg:#f3f6fb;
+  --line:#dfe5ef;
+  --text:#222;
+  --muted:#667085;
+}
+
+*{box-sizing:border-box}
+
+body{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.page{
+  max-width:900px;
+  margin:0 auto;
+  padding:28px 18px 50px;
+}
+
+h1{
+  margin:0;
+  text-align:center;
+  color:var(--blue);
+  font-size:28px;
+}
+
+.subtitle{
+  text-align:center;
+  color:var(--muted);
+  margin:7px 0 25px;
+  font-size:14px;
+}
+
+.creator{
+  max-width:430px;
+  margin:0 auto 28px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:22px;
+  box-shadow:0 5px 20px rgba(20,30,60,.08);
+}
+
+label{
+  display:block;
+  margin:12px 0 6px;
+  font-size:13px;
+  font-weight:700;
+  color:#344054;
+}
+
+input{
+  width:100%;
+  padding:11px 12px;
+  border:1px solid #ccd3df;
+  border-radius:8px;
+  font-size:15px;
+  outline:none;
+}
+
+input:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(45,108,223,.10);
+}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:11px 14px;
+  border:0;
+  border-radius:8px;
+  background:var(--blue);
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+button:hover{filter:brightness(.96)}
+
+button.secondary{
+  background:#667085;
+}
+
+.help{
+  margin-top:13px;
+  padding:10px 12px;
+  border-radius:8px;
+  background:#f7f8fa;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+
+.preview-title{
+  text-align:center;
+  color:#344054;
+  font-size:13px;
+  font-weight:700;
+  margin:8px 0 15px;
+}
+
+.card-container{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  justify-content:center;
+}
+
+.business-card{
+  width:3.5in;
+  height:2in;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  display:flex;
+  flex-direction:column;
+  page-break-inside:avoid;
+  flex-shrink:0;
+}
+
+.front{
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px;
+  border-radius:12px;
+}
+
+.front .info{
+  flex:1;
+  text-align:left;
+  padding-right:10px;
+  min-width:0;
+}
+
+.front .title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.front .name{
+  font-size:13px;
+  font-weight:600;
+  line-height:1.25;
+  word-break:break-word;
+}
+
+.front .email{
+  font-size:9px;
+  color:#dce6ff;
+  margin-top:6px;
+  word-break:break-all;
+  line-height:1.2;
+}
+
+.front .qr-area{
+  width:116px;
+  height:116px;
+  background:#fff;
+  padding:8px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.front .qr-area img,
+.front .qr-area canvas{
+  width:100px !important;
+  height:100px !important;
+  display:block;
+}
+
+.back{
+  width:100%;
+  height:100%;
+  background:#fff;
+  color:#000;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  background-image:repeating-linear-gradient(
+    45deg,
+    #f9f9f9,
+    #f9f9f9 10px,
+    #fff 10px,
+    #fff 20px
+  );
+}
+
+.back .qr-area{
+  width:130px;
+  height:130px;
+  background:#fff;
+  padding:5px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.back .qr-area img,
+.back .qr-area canvas{
+  width:120px !important;
+  height:120px !important;
+  display:block;
+}
+
+.back .title{
+  margin-top:8px;
+  font-size:16px;
+  font-weight:700;
+  color:var(--navy);
+}
+
+.back .scan{
+  margin-top:2px;
+  font-size:8px;
+  color:#667085;
+}
+
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:25px;
+}
+
+.notice{
+  max-width:700px;
+  margin:0 auto 20px;
+  font-size:12px;
+  color:#667085;
+  text-align:center;
+}
+
+@media(max-width:600px){
+  .page{padding:20px 10px 40px}
+  .business-card{
+    transform:scale(.9);
+    transform-origin:top center;
+    margin-bottom:-20px;
+  }
+}
+
+@media print{
+  body{
+    background:#fff;
+    margin:0;
+  }
+
+  .page{
+    max-width:none;
+    padding:0;
+    margin:0;
+  }
+
+  h1,
+  .subtitle,
+  .creator,
+  .preview-title,
+  .notice{
+    display:none !important;
+  }
+
+  /*
+    PRINT LAYOUT MATCHES THE ORIGINAL FILE:
+    - cards remain exactly 3.5 × 2 inches
+    - cards stay at the top-left
+    - no extra gap
+    - each side prints as its own page
+    - rounded corners remain
+    - only the screen shadow is removed
+  */
+  .card-container{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    justify-content:flex-start;
+    align-items:flex-start;
+    margin:0;
+  }
+
+  .business-card{
+    width:3.5in;
+    height:2in;
+    margin:0;
+    border-radius:12px;
+    box-shadow:none;
+    border:1px solid #ccc;
+    page-break-inside:avoid;
+    page-break-after:always;
+    break-after:page;
+  }
+
+  .business-card:last-child{
+    page-break-after:auto;
+    break-after:auto;
+  }
+
+  .front,
+  .back{
+    border-radius:12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <h1>Library Zone QR Card Creator</h1>
+  <div class="subtitle">
+    Create and print a parent Library Zone QR card
+  </div>
+
+  <div class="creator">
+
+    <label for="parentName">Parent Name</label>
+    <input id="parentName"
+           type="text"
+           placeholder="Optional — e.g. John Smith">
+
+    <label for="email">Parent Email</label>
+    <input id="email"
+           type="email"
+           autocomplete="off"
+           placeholder="parent@example.com">
+
+    <label for="password">Parent Password</label>
+    <input id="password"
+           type="password"
+           autocomplete="new-password"
+           placeholder="Parent password">
+
+    <button id="generateBtn">
+      Generate QR Card
+    </button>
+
+    <button id="printBtn"
+            class="secondary"
+            style="display:none">
+      Print QR Card
+    </button>
+
+    <button id="clearBtn"
+            class="secondary"
+            style="display:none">
+      Create Another Card
+    </button>
+
+    <div class="help">
+      The QR code contains the Library Zone account email and password
+      in the format used by the parent/scanner system.
+    </div>
+
+  </div>
+
+  <div class="notice">
+    The QR card is exactly 3.5 × 2 inches, matching the dimensions and
+    general front/back design of your attached card.
+  </div>
+
+  <div class="preview-title" id="previewTitle" style="display:none">
+    PRINT PREVIEW
+  </div>
+
+  <div class="card-container" id="cardContainer">
+    <div class="empty" id="emptyMessage">
+      Enter the parent's email and password above to create the card.
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+const parentName=document.getElementById("parentName");
+const email=document.getElementById("email");
+const password=document.getElementById("password");
+
+const generateBtn=document.getElementById("generateBtn");
+const printBtn=document.getElementById("printBtn");
+const clearBtn=document.getElementById("clearBtn");
+
+const cardContainer=document.getElementById("cardContainer");
+const previewTitle=document.getElementById("previewTitle");
+const emptyMessage=document.getElementById("emptyMessage");
+
+
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g,m=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[m]));
+}
+
+
+function makeQRCode(container,text,size){
+
+  container.innerHTML="";
+
+  new QRCode(container,{
+    text:text,
+    width:size,
+    height:size,
+    colorDark:"#000000",
+    colorLight:"#ffffff",
+    correctLevel:QRCode.CorrectLevel.H
+  });
+
+}
+
+
+function generateCard(){
+
+  const name=parentName.value.trim();
+  const parentEmail=email.value.trim();
+  const parentPassword=password.value;
+
+  if(!parentEmail){
+    alert("Please enter the parent's email.");
+    email.focus();
+    return;
+  }
+
+  if(!parentPassword){
+    alert("Please enter the parent's password.");
+    password.focus();
+    return;
+  }
+
+  if(!parentEmail.includes("@")){
+    alert("Please enter a valid email address.");
+    email.focus();
+    return;
+  }
+
+
+  /*
+    This is the exact data encoded in the QR.
+
+    Example:
+    {
+      "type":"LIBRARY_ZONE_PARENT",
+      "email":"parent@example.com",
+      "password":"123456"
+    }
+  */
+
+  const qrData={
+    type:"LIBRARY_ZONE_PARENT",
+    email:parentEmail,
+    password:parentPassword
+  };
+
+  const qrText=JSON.stringify(qrData);
+
+
+  cardContainer.innerHTML="";
+
+
+  /* FRONT */
+
+  const front=document.createElement("div");
+  front.className="business-card";
+
+  front.innerHTML=`
+    <div class="front">
+
+      <div class="info">
+
+        <div class="title">
+          Library Zone
+        </div>
+
+        <div class="name">
+          ${escapeHTML(name || "Parent Account")}
+        </div>
+
+        <div class="email">
+          ${escapeHTML(parentEmail)}
+        </div>
+
+      </div>
+
+      <div class="qr-area"
+           id="frontQR">
+      </div>
+
+    </div>
+  `;
+
+  cardContainer.appendChild(front);
+
+  makeQRCode(
+    document.getElementById("frontQR"),
+    qrText,
+    100
+  );
+
+
+  /* BACK */
+
+  const back=document.createElement("div");
+  back.className="business-card";
+
+  back.innerHTML=`
+    <div class="back">
+
+      <div class="qr-area"
+           id="backQR">
+      </div>
+
+      <div class="title">
+        Library Zone
+      </div>
+
+      <div class="scan">
+        Scan to access parent account
+      </div>
+
+    </div>
+  `;
+
+  cardContainer.appendChild(back);
+
+  makeQRCode(
+    document.getElementById("backQR"),
+    qrText,
+    120
+  );
+
+
+  emptyMessage.style.display="none";
+  previewTitle.style.display="block";
+
+  printBtn.style.display="block";
+  clearBtn.style.display="block";
+
+  generateBtn.textContent="Regenerate QR Card";
+
+}
+
+
+generateBtn.addEventListener(
+  "click",
+  generateCard
+);
+
+
+printBtn.addEventListener(
+  "click",
+  ()=>window.print()
+);
+
+
+clearBtn.addEventListener(
+  "click",
+  ()=>{
+
+    parentName.value="";
+    email.value="";
+    password.value="";
+
+    cardContainer.innerHTML=`
+      <div class="empty" id="emptyMessage">
+        Enter the parent's email and password above to create the card.
+      </div>
+    `;
+
+    previewTitle.style.display="none";
+    printBtn.style.display="none";
+    clearBtn.style.display="none";
+
+    generateBtn.textContent="Generate QR Card";
+
+  }
+);
+
+
+/* Enter key convenience */
+
+[email,password,parentName].forEach(input=>{
+  input.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){
+      generateCard();
+    }
+  });
+});
+
+</script>
+
+</body>
+</html>
